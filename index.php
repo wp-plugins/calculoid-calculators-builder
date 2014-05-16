@@ -1,9 +1,9 @@
 <?php
 	/*
-		Plugin Name: Calculoid
+		Plugin Name: Calculoid - Calculator's builder
 		Plugin URI: https://wordpress.org/plugins/calculoid/
 		Description: Plugin easily inserts a caclulator from Calculoid.com service.
-		Version: 1.0
+		Version: 1.1
 		Author: Calculoid.com
 		Author URI: http://calculoid.com
 	*/	
