@@ -32,17 +32,9 @@
 			$this->calculoid_options = array(
 				'Calculoid Options' => array(
 					array(
-						'name'        => 'Include Calculoid CSS',
-						'key'         => 'include_calculoid_css',
-						'type'        => PostMetaManagerFieldType::Checkbox
-					),
-					array(
-						'type' => PostMetaManagerFieldType::Delimiter
-					),
-					array(
 						'name' => 'API Key',
 						'key'  => 'apikey',
-						'desc' => 'Input your Calculoid API key here.',
+						'desc' => 'Input your Calculoid API key here. Your API key is visible in your profile at <a href="http://calculoid.com/#/profile">http://calculoid.com/#/profile</a>',
 						'type' => PostMetaManagerFieldType::Textbox
 					),
 					array(
@@ -50,7 +42,7 @@
 					),
 					array(
 						'type' => PostMetaManagerFieldType::Label,
-						'custom_vars' => array('text' => '<i style="font-size: 12px; color: #555;">This plugin utilizes <a href="http://codex.wordpress.org/Shortcode" target="_blank">WordPress Shortcodes</a>, so in order to produce a calculator output on the front-end, you need to know a specific <a href="http://calculoid.com/" target="_blank">calculator ID</a>.<br />You can then use the shortcode anywhere within your WordPress instance like so => <strong style="font-weight: 800;">[calculoid id=123]</strong><br /><br />Make sure your Calculoid API key is valid and entered as well.</i>')
+						'custom_vars' => array('text' => '<i style="font-size: 12px; color: #555;">This plugin utilizes <a href="http://codex.wordpress.org/Shortcode" target="_blank">WordPress Shortcodes</a>, so in order to produce a calculator output on the front-end, you need to know a specific <a href="http://calculoid.com/" target="_blank">calculator ID</a>.<br />You can then use the shortcode anywhere within your WordPress instance like so => <strong style="font-weight: 800;">[calculoid id=123]</strong> (replace 123 with ID of the calculator you want to embed)<br /><br />Make sure your Calculoid API key is valid and entered as well.</i>')
 					),
 				)
 			);		
@@ -64,7 +56,7 @@
 		# Render admin page markup
 		public function render_admin_page() {
 			# Save new data
-			if(isset($_POST['calculoid_options']) && is_array($_POST['calculoid_options'])) {
+			if (isset($_POST['calculoid_options']) && is_array($_POST['calculoid_options'])) {
 				$post_data = $_POST['calculoid_options'];
 				update_option('calculoid_options', $post_data);
 				?><div class="updated"><p><strong>Options saved.</strong></p></div><?php
@@ -135,33 +127,35 @@
 		# Shortcode
 		public function shortcode_calculoid($atts) {
 			$saved_calculoid_options = get_option('calculoid_options');
-			if ($saved_calculoid_options != false && is_array($saved_calculoid_options) && !empty($saved_calculoid_options)) {
-				extract(
-					shortcode_atts(
-						array(
-							'id' => 0
-						),
-						$atts
-					)
-				);
+
+			extract(shortcode_atts(
+				array(
+					'id' => 0,
+					'show_title' => 1,
+					'show_description' => 1
+				), $atts
+			));
+
+			if (isset($saved_calculoid_options) && is_array($saved_calculoid_options)) {
 				extract($saved_calculoid_options);
 				$apikey = html_entity_decode($apikey);
 				$apikey = esc_attr($apikey);
-				if (!empty($apikey) && is_numeric($id) && $id > 0) {
-					ob_start();
-					?>
-						<?php if ($this->calculoid_counter == 0) { ?>
-							<?php if ($include_calculoid_css === PostMetaManagerHelper::CheckboxChecked) { ?>
-								<link rel="stylesheet" href="http://embed.calculoid.com/styles/main.css" />
-							<?php } ?>
-							<script type="text/javascript" src="http://embed.calculoid.com/scripts/combined.min.js"></script>
-						<?php } ?>
-						<div ng-controller="CalculoidMainCtrl" ng-init="init({calcId:<?php _e($id) ?>,apiKey:'<?php _e($apikey) ?>'})" ng-include="load()"></div>					
-					<?php
-					$content = ob_get_clean();
-					$this->calculoid_counter++;
-					return $content;
-				}
+			} else {
+				$apiKey = '';
+			}
+
+			if (is_numeric($id) && $id > 0) {
+				ob_start();
+				?>
+					<?php if ($this->calculoid_counter == 0) : ?>
+						<link rel="stylesheet" href="https://embed.calculoid.com/styles/main.css" />
+						<script type="text/javascript" src="https://embed.calculoid.com/scripts/combined.min.js"></script>
+					<?php endif; ?>
+					<div ng-controller="CalculoidMainCtrl" ng-init="init({calcId:<?php _e($id) ?>,apiKey:'<?php _e($apikey) ?>',showTitle:<?php _e($show_title) ?>,showDescription:<?php _e($show_description) ?>})" ng-include="load()"></div>					
+				<?php
+				$content = ob_get_clean();
+				$this->calculoid_counter++;
+				return $content;
 			}
 		}
 		
