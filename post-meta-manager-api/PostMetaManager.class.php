@@ -47,7 +47,7 @@
 			return $str;
 		}
 		
-		public function esc_attr($str) {
+		public static function esc_attr($str) {
 			$str = str_replace('"', '&quot;', $str);
 			$str = str_replace('\&', '&', $str);
 			$str = str_replace("\'", "'", $str);
@@ -190,7 +190,7 @@
 		
 		// DELIMITER
 		public function delimiter($identifier, $saved_value, $field_data) {
-			if ($field_data['custom_vars']) extract($field_data['custom_vars']);
+			if (!empty($field_data['custom_vars'])) extract($field_data['custom_vars']);
 			ob_start();
 			include(PMM_FIELDS_PATH . 'delimiter.php');
 			$field_content = ob_get_clean();
@@ -199,7 +199,7 @@
 		
 		// TEXTBOX	
 		public function textbox($identifier, $saved_value, $field_data) {
-			if ($field_data['custom_vars']) extract($field_data['custom_vars']);
+			if (!empty($field_data['custom_vars'])) extract($field_data['custom_vars']);
 			ob_start();
 			include(PMM_FIELDS_PATH . 'textbox.php');
 			$field_content = ob_get_clean();
@@ -226,7 +226,7 @@
 		
 		// CHECKBOX			
 		public function checkbox($identifier, $saved_value, $field_data) {
-			if ($field_data['custom_vars']) extract($field_data['custom_vars']);
+			if (!empty($field_data['custom_vars'])) extract($field_data['custom_vars']);
 			ob_start();
 			if (empty($saved_value)) {
 				if (isset($checked_by_default) && $checked_by_default === true) {
@@ -436,6 +436,10 @@
 		}
 		
 		public function add_fields($field_data) {
+			if (empty($field_data['key']))
+			{
+				$field_data['key'] = 0;
+			}
 			$identifier  = $this->custom_field_identifier . '[' . $field_data['key'] . ']';
 			$saved_value = isset($this->meta[$field_data['key']]) ? $this->meta[$field_data['key']] : '';
 			$saved_value = is_array($saved_value) && count($saved_value) == 1 ? $saved_value[0] : $saved_value;
